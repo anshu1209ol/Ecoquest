@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Leaderboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:20px;">
+    <div class="section-title">
+      <h2>Global Leaderboard</h2>
+    </div>
+    <div class="card">
+      <table class="table" id="globalBoard"></table>
+    </div>
+
+    <div class="section-title">
+      <h2>School Leaderboard</h2>
+    </div>
+    <div class="card">
+      <table class="table" id="schoolBoard"></table>
+    </div>
+  </main>
+
+  <footer class="footer">Climb the ranks by earning Eco-Points!</footer>
+
+  <script src="app.js"></script>
+  <script>
+    Eco.updateNav();
+    const me = Eco.getAuthedUser();
+
+    (function seed() {
+      const existing = Eco.readUsers();
+      const already = new Set(existing.map(u=>u.email));
+      const samples = [
+        { email: 'aarya@green.edu', name: 'Aarya Sharma', school: 'Green Valley College', points: 420, badges: ['Silver','Gold'] },
+        { email: 'vihaan@sunrise.edu', name: 'Vihaan Patel', school: 'Sunrise Public School', points: 310, badges: ['Silver','Gold'] },
+        { email: 'isha@riverdale.edu', name: 'Isha Nair', school: 'Riverdale College', points: 180, badges: ['Silver'] },
+        { email: 'arjun@sunrise.edu', name: 'Arjun Mehta', school: 'Sunrise Public School', points: 510, badges: ['Silver','Gold','Platinum'] },
+        { email: 'kiara@hills.edu', name: 'Kiara Dsouza', school: 'Hillside High', points: 95, badges: [] },
+        { email: 'dev@coastal.edu', name: 'Dev Rao', school: 'Coastal Institute', points: 265, badges: ['Silver','Gold'] },
+        { email: 'priya@riverdale.edu', name: 'Priya Singh', school: 'Riverdale College', points: 355, badges: ['Silver','Gold'] },
+        { email: 'kabir@green.edu', name: 'Kabir Khan', school: 'Green Valley College', points: 130, badges: ['Silver'] }
+      ];
+      samples.forEach(s => { if (!already.has(s.email)) { s.avatarDataUrl = Eco.initialsAvatar(s.name); Eco.upsertUser(s); } });
+    })();
+
+    const users = Eco.readUsers().map(u => ({ name: u.name || u.email, school: u.school || '-', points: u.points || 0 }));
+    users.sort((a,b)=>b.points-a.points);
+
+    function renderTable(el, rows) {
+      el.innerHTML = '<tr><th>#</th><th>Name</th><th>School</th><th>Points</th></tr>' + rows.map((r,i)=>`<tr${me && me.name===r.name? ' style="background:#f0fdf4"':''}><td>${i+1}</td><td>${r.name}</td><td>${r.school}</td><td>${Eco.formatPoints(r.points)}</td></tr>`).join('');
+    }
+
+    renderTable(document.getElementById('globalBoard'), users.slice(0, 50));
+
+    const mySchool = me ? me.school : null;
+    const schoolRows = mySchool ? users.filter(u=>u.school===mySchool) : [];
+    renderTable(document.getElementById('schoolBoard'), schoolRows);
+  </script>
+</body>
+</html>

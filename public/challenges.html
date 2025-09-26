@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Challenges</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .proof { margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .proof img { width:80px; height:80px; object-fit:cover; border-radius:8px; border:1px solid var(--eco-border); }
+    
+    .challenge-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0;
+      padding: 16px;
+      background: var(--eco-light);
+      border-radius: 8px;
+      border: 1px solid var(--eco-border);
+    }
+    
+    .clear-submissions {
+      display: flex;
+      align-items: center;
+    }
+    
+    .due-date, .submission-status {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .due-label, .status-label {
+      font-size: 12px;
+      color: var(--eco-text);
+      font-weight: 500;
+    }
+    
+    .due-value, .status-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--eco-forest);
+    }
+    
+    .due-value {
+      color: var(--eco-orange);
+    }
+    
+    .status-value {
+      color: var(--eco-green);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 8px 0;
+    }
+    
+    @media (max-width: 768px) {
+      .challenge-info {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+      
+      .clear-submissions {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links" style="display:none"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:20px;">
+    <div class="card">
+      <h2>🌱 Eco Challenges</h2>
+      <p class="helper">📸 Upload a photo as proof. Your teacher will verify submissions for group activities (1+ people) and environmental content. +50 points if verified.</p>
+      <div class="challenge-info">
+        <div class="due-date">
+          <span class="due-label">📅 Due Date:</span>
+          <span class="due-value">October 9, 2025</span>
+        </div>
+        <div class="submission-status">
+          <span class="status-label">📋 Your Submissions:</span>
+          <span id="submissionCount" class="status-value">0/7</span>
+        </div>
+        <div class="clear-submissions">
+          <button class="btn" onclick="clearAllSubmissions()" style="background: var(--eco-orange); color: white;">
+            🗑️ Clear All Submissions
+          </button>
+        </div>
+      </div>
+      <div id="tasks" class="grid"></div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const user = Eco.requireAuth();
+    const tasks = [
+      { id: 'tree', title: '🌳 Plant a Tree', desc: 'Plant a native sapling in your area with friends or family.', emoji: '🌳', requiresGroup: true },
+      { id: 'waste', title: '♻️ Waste Segregation', desc: 'Segregate household waste for one week and create awareness posters.', emoji: '♻️', requiresGroup: true },
+      { id: 'bottle', title: '🍶 Use Reusable Bottle', desc: 'Avoid single-use plastic bottles for 7 days.', emoji: '🍶', requiresGroup: false },
+      { id: 'cleanup', title: '🧹 Neighborhood Cleanup', desc: 'Organize a community cleanup with friends and neighbors.', emoji: '🧹', requiresGroup: true },
+      { id: 'bike', title: '🚴 Cycle to School', desc: 'Bike or walk instead of using a car for 3 days.', emoji: '🚴', requiresGroup: false },
+      { id: 'lights', title: '💡 Power Saver', desc: 'Turn off unnecessary lights for 3 evenings.', emoji: '💡', requiresGroup: false },
+      { id: 'poster', title: '📢 Create Eco Poster', desc: 'Design and display environmental awareness posters in your community.', emoji: '📢', requiresGroup: true }
+    ];
+
+    async function analyzeImage(dataUrl, taskId) {
+      // Challenge-specific AI verification
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const w = img.naturalWidth, h = img.naturalHeight;
+            if (w < 200 || h < 200) return resolve({ ok:false, reason:'Image too small' });
+            
+            const c = document.createElement('canvas'); 
+            c.width = 128; c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0, 128, 128);
+            const { data } = ctx.getImageData(0,0,128,128);
+            
+            let sum=0, sum2=0, greenish=0, skinTone=0, textAreas=0, blueish=0, brownish=0;
+            for (let i=0;i<data.length;i+=4){
+              const r=data[i], g=data[i+1], b=data[i+2];
+              const lum = 0.2126*r+0.7152*g+0.0722*b; 
+              sum+=lum; sum2+=lum*lum;
+              
+              // Check for green content (trees, plants, nature)
+              if (g>r+10 && g>b+10) greenish++;
+              
+              // Check for skin tone (people detection)
+              if (r > 100 && g > 80 && b > 60 && r > g && g > b) skinTone++;
+              
+              // Check for text areas (posters, signs)
+              if (lum < 50 || lum > 200) textAreas++;
+              
+              // Check for blue content (water, sky)
+              if (b>r+10 && b>g+10) blueish++;
+              
+              // Check for brown content (soil, earth, trees)
+              if (r > 80 && g > 60 && b > 40 && r > b && g > b) brownish++;
+            }
+            
+            const n = (data.length/4);
+            const mean = sum/n; 
+            const variance = Math.max(0, sum2/n - mean*mean);
+            const greenRatio = greenish/n;
+            const skinRatio = skinTone/n;
+            const textRatio = textAreas/n;
+            const blueRatio = blueish/n;
+            const brownRatio = brownish/n;
+            
+            const task = tasks.find(t => t.id === taskId);
+            let ok = false;
+            let reason = '';
+            
+            // Challenge-specific verification
+            switch(taskId) {
+              case 'tree':
+                // Plant a tree: Check for people + green content + soil
+                ok = skinRatio > 0.02 && greenRatio > 0.08 && brownRatio > 0.05;
+                reason = ok ? 'Verified - People planting trees detected' : 'Rejected - Need people planting trees with soil/plants';
+                break;
+                
+              case 'waste':
+                // Waste segregation: Check for people + waste/segregation content
+                ok = skinRatio > 0.02 && (textRatio > 0.1 || greenRatio > 0.05);
+                reason = ok ? 'Verified - People with waste segregation content' : 'Rejected - Need people with waste segregation or posters';
+                break;
+                
+              case 'bottle':
+                // Reusable bottle: Check for bottle/container content
+                ok = variance > 800 && (textRatio > 0.05 || greenRatio > 0.03);
+                reason = ok ? 'Verified - Bottle/container content detected' : 'Rejected - Need reusable bottle or container content';
+                break;
+                
+              case 'cleanup':
+                // Neighborhood cleanup: Check for people + outdoor cleanup
+                ok = skinRatio > 0.02 && (greenRatio > 0.05 || blueRatio > 0.05);
+                reason = ok ? 'Verified - People doing cleanup activity' : 'Rejected - Need people doing outdoor cleanup';
+                break;
+                
+              case 'bike':
+                // Cycle to school: Check for bike/transportation content
+                ok = variance > 800 && (textRatio > 0.05 || greenRatio > 0.03);
+                reason = ok ? 'Verified - Transportation content detected' : 'Rejected - Need bike or transportation content';
+                break;
+                
+              case 'lights':
+                // Power saver: Check for indoor/lighting content
+                ok = variance > 600 && (textRatio > 0.03 || greenRatio > 0.02);
+                reason = ok ? 'Verified - Indoor/lighting content detected' : 'Rejected - Need indoor or lighting content';
+                break;
+                
+              case 'poster':
+                // Create eco poster: Check for people + environmental poster
+                ok = skinRatio > 0.02 && textRatio > 0.1;
+                reason = ok ? 'Verified - People with environmental poster' : 'Rejected - Need people with environmental poster/sign';
+                break;
+                
+              default:
+                ok = variance > 800 && greenRatio > 0.05;
+                reason = ok ? 'Verified - Environmental content' : 'Rejected - Low environmental content';
+            }
+            
+            resolve({ ok, reason });
+          } catch(e) { 
+            resolve({ ok:false, reason:'Processing error' }); 
+          }
+        };
+        img.onerror = () => resolve({ ok:false, reason:'Load error' });
+        img.src = dataUrl;
+      });
+    }
+
+    function isLateSubmission() {
+      const dueDate = new Date('2025-10-09');
+      const now = new Date();
+      return now > dueDate;
+    }
+
+    function updateSubmissionCount() {
+      const latest = Eco.findUser(user.email);
+      const completed = latest.tasksCompleted || {};
+      const submittedCount = Object.values(completed).filter(r => r && r.submitted).length;
+      document.getElementById('submissionCount').textContent = `${submittedCount}/${tasks.length}`;
+    }
+
+    function clearOtherChallengePhotos(currentChallengeId) {
+      // Clear file inputs and previews for all other challenges
+      tasks.forEach(task => {
+        if (task.id !== currentChallengeId) {
+          const input = document.getElementById('file_' + task.id);
+          const preview = document.getElementById('preview_' + task.id);
+          const status = document.getElementById('status_' + task.id);
+          
+          if (input) input.value = '';
+          if (preview) {
+            preview.src = '';
+            preview.style.display = 'none';
+          }
+          if (status) status.textContent = '';
+        }
+      });
+    }
+
+    function clearAllSubmissions() {
+      // Show confirmation dialog
+      const confirmed = confirm('Are you sure you want to clear ALL submissions? This action cannot be undone and you will lose all your progress and photos.');
+      
+      if (confirmed) {
+        const fresh = Eco.findUser(user.email);
+        if (fresh) {
+          // Clear all task completions
+          fresh.tasksCompleted = {};
+          Eco.upsertUser(fresh);
+          console.log('All submissions cleared for user:', user.email);
+          alert('All submissions have been cleared successfully!');
+          render(); // Refresh the display
+        }
+      }
+    }
+
+    function render() {
+      const wrap = document.getElementById('tasks');
+      wrap.innerHTML = '';
+      const latest = Eco.findUser(user.email);
+      latest.tasksCompleted = latest.tasksCompleted || {};
+      const isLate = isLateSubmission();
+      
+      tasks.forEach(t => {
+        const record = latest.tasksCompleted[t.id];
+        const done = !!record && !!record.verified;
+        const submitted = !!record && !!record.submitted;
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        // Add emoji to title
+        const h = document.createElement('h3'); 
+        h.innerHTML = `${t.emoji} ${t.title}`; 
+        card.appendChild(h);
+        
+        const p = document.createElement('p'); 
+        p.textContent = t.desc; 
+        card.appendChild(p);
+        
+        // Add group activity indicator
+        if (t.requiresGroup) {
+          const groupBadge = document.createElement('div');
+          groupBadge.className = 'badge';
+          groupBadge.style.background = 'var(--eco-blue)';
+          groupBadge.textContent = '👥 Group Activity Required';
+          card.appendChild(groupBadge);
+        }
+
+        const proof = document.createElement('div'); proof.className='proof';
+        const input = document.createElement('input'); 
+        input.type='file'; 
+        input.accept='image/*'; 
+        input.id = 'file_'+t.id;
+        input.name = 'file_'+t.id; // Unique name for each challenge
+        
+        const preview = document.createElement('img'); 
+        preview.alt='proof'; 
+        preview.style.display = record && record.proof ? 'block' : 'none';
+        preview.id = 'preview_'+t.id; // Unique ID for each preview
+        if (record && record.proof) preview.src = record.proof;
+        
+        const verifyBtn = document.createElement('button'); 
+        verifyBtn.className='btn'; 
+        verifyBtn.textContent='Verify Photo';
+        verifyBtn.id = 'verify_'+t.id; // Unique ID for each verify button
+        
+        const status = document.createElement('div'); 
+        status.className='helper';
+        status.id = 'status_'+t.id; // Unique ID for each status
+        if (record && record.statusText) status.textContent = record.statusText;
+        
+        proof.appendChild(input); 
+        proof.appendChild(verifyBtn); 
+        proof.appendChild(preview); 
+        proof.appendChild(status);
+        card.appendChild(proof);
+
+        const btn = document.createElement('button'); 
+        btn.className = 'btn';
+        if (done) {
+          btn.textContent = record.isLate ? 'Verified by Teacher (Late)' : 'Verified by Teacher';
+          btn.style.background = record.isLate ? 'var(--eco-orange)' : 'var(--eco-green)';
+        } else if (submitted) {
+          btn.textContent = 'Awaiting Teacher Review';
+          btn.style.background = 'var(--eco-blue)';
+          btn.disabled = true;
+        } else {
+          const points = isLate ? '25' : '50';
+          btn.textContent = `Submit for Grading (+${points}${isLate ? ' - Late' : ''})`;
+        }
+        btn.disabled = !record || !record.verified;
+        btn.onclick = () => {
+          const fresh = Eco.findUser(user.email);
+          const r = (fresh.tasksCompleted||{})[t.id];
+          if (!r || !r.verified || r.awarded) return;
+          r.awarded = true; 
+          Eco.upsertUser(fresh);
+          const points = r.isLate ? 25 : 50; // Reduced points for late submissions
+          Eco.awardPoints(fresh, points, `Task: ${t.title}${r.isLate ? ' (Late)' : ''}`);
+          Eco.recomputeBadges(fresh);
+          alert(`Great job! +${points} Eco-Points awarded by your teacher${r.isLate ? ' (reduced for late submission)' : ''}.`);
+          render();
+        };
+        card.appendChild(btn);
+
+        verifyBtn.onclick = async () => {
+          const file = input.files && input.files[0];
+          if (!file) { 
+            alert('Please select a photo first.'); 
+            return; 
+          }
+          
+          // Check if this photo is already used for another challenge
+          const fresh = Eco.findUser(user.email);
+          const existingPhotos = Object.values(fresh.tasksCompleted || {})
+            .filter(record => record && record.proof)
+            .map(record => record.proof);
+          
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const dataUrl = reader.result;
+            
+            // Check if this exact photo is already used
+            if (existingPhotos.includes(dataUrl)) {
+              alert('This photo has already been used for another challenge. Please upload a different photo.');
+              input.value = '';
+              return;
+            }
+            
+            preview.src = dataUrl; 
+            preview.style.display = 'block';
+            
+            // Analyze this specific photo for this specific challenge
+            const res = await analyzeImage(dataUrl, t.id);
+            const isLate = isLateSubmission();
+            const lateText = isLate ? ' (Late Submission)' : '';
+            
+            if (res.ok) {
+              // Photo submitted for teacher grading - save it for this specific challenge only
+              fresh.tasksCompleted[t.id] = { 
+                proof: dataUrl, 
+                verified: false, // Not verified yet, waiting for teacher
+                submitted: true,
+                statusText: `Submitted for Grading${lateText}`, 
+                at: new Date().toISOString(),
+                isLate: isLate
+              };
+              console.log(`Challenge ${t.id} submitted for teacher grading:`, dataUrl.substring(0, 50) + '...');
+            } else {
+              // Photo rejected - clear it and show error
+              preview.src = ''; 
+              preview.style.display = 'none';
+              input.value = ''; // Clear the file input
+              fresh.tasksCompleted[t.id] = { 
+                proof: null, 
+                verified: false, 
+                submitted: false,
+                statusText: `Rejected ✖ (${res.reason})`, 
+                at: new Date().toISOString(),
+                isLate: isLate
+              };
+              console.log(`Challenge ${t.id} rejected:`, res.reason);
+            }
+            
+            Eco.upsertUser(fresh);
+            status.textContent = fresh.tasksCompleted[t.id].statusText;
+            updateSubmissionCount();
+            render();
+          };
+          reader.readAsDataURL(file);
+        };
+
+        if (done) {
+          const tag = document.createElement('div');
+          tag.className = 'badge';
+          tag.textContent = record.isLate ? 'Verified by Teacher (Late)' : 'Verified by Teacher';
+          if (record.isLate) tag.style.background = 'var(--eco-orange)';
+          else tag.style.background = 'var(--eco-green)';
+          card.appendChild(tag);
+        } else if (submitted) {
+          const tag = document.createElement('div');
+          tag.className = 'badge';
+          tag.textContent = 'Submitted for Grading';
+          tag.style.background = 'var(--eco-blue)';
+          card.appendChild(tag);
+        }
+        
+        // Show submission status
+        if (submitted) {
+          const submissionInfo = document.createElement('div');
+          submissionInfo.className = 'helper';
+          submissionInfo.style.marginTop = '8px';
+          submissionInfo.innerHTML = `📅 Submitted: ${new Date(record.at).toLocaleDateString()}${record.isLate ? ' <span style="color: var(--eco-orange);">(Late)</span>' : ''}`;
+          card.appendChild(submissionInfo);
+        }
+        
+        wrap.appendChild(card);
+      });
+      
+      updateSubmissionCount();
+    }
+    render();
+  </script>
+</body>
+</html>

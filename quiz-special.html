@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Special AI Eco Quiz</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links" style="display:none"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="special-quiz-container">
+    <!-- Topic Selection Screen -->
+    <div id="topicSelectionScreen" class="topic-selection-screen">
+      <div class="topic-selection-card">
+        <div class="special-quiz-icon">🌟</div>
+        <h1>Special AI Eco Quiz</h1>
+        <p class="special-quiz-description">Choose your topics and test your environmental knowledge with our specialized quiz! Answer 5 questions from each selected topic.</p>
+        
+        <div class="topic-selection-section">
+          <h3>Select Topics (Choose 1-3 topics)</h3>
+          <div class="topics-grid" id="topicsGrid">
+            <!-- Topics will be dynamically generated -->
+          </div>
+        </div>
+
+        <div class="special-quiz-features">
+          <div class="feature">
+            <span class="feature-icon">🎯</span>
+            <span>5 Focused Questions</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">🎯</span>
+            <span>5 Questions per Topic</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">🏆</span>
+            <span>2 EcoPoints per Correct Answer</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">⚡</span>
+            <span>Quick & Interactive</span>
+          </div>
+        </div>
+
+        <button id="startSpecialQuizBtn" class="btn primary large" disabled>Start Special Quiz</button>
+        <div id="topicSelectionError" class="notice" style="display:none;">
+          Please select at least one topic to continue.
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Quiz Question Screen -->
+    <div id="specialQuizQuestionScreen" class="special-quiz-question-screen" style="display:none;">
+      <div class="special-quiz-progress">
+        <div class="progress-bar">
+          <div id="specialProgressFill" class="progress-fill"></div>
+        </div>
+        <div class="progress-text">
+          <span id="specialCurrentQuestion">1</span> of <span id="specialTotalQuestions">5</span>
+        </div>
+      </div>
+
+      <div class="special-quiz-question-card">
+        <div class="question-header">
+          <h2 id="specialQuestionText">Loading question...</h2>
+          <div class="question-category" id="specialQuestionCategory">Environmental Science</div>
+        </div>
+        
+        <div class="options-container" id="specialOptionsContainer">
+          <!-- Options will be dynamically generated -->
+        </div>
+
+        <div class="special-quiz-feedback" id="specialQuizFeedback" style="display:none;">
+          <div class="feedback-content">
+            <div class="feedback-icon" id="specialFeedbackIcon">✓</div>
+            <div class="feedback-text">
+              <div class="feedback-title" id="specialFeedbackTitle">Correct!</div>
+              <div class="feedback-explanation" id="specialFeedbackExplanation">Great job!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="special-quiz-controls">
+          <button id="specialSkipBtn" class="btn secondary">Skip Question</button>
+          <button id="specialSubmitBtn" class="btn primary" disabled>Submit Answer</button>
+          <button id="specialNextBtn" class="btn primary" style="display:none;">Next Question</button>
+        </div>
+      </div>
+
+      <div class="special-quiz-score-card">
+        <h3>Your Progress</h3>
+        <div class="score-stats">
+          <div class="score-stat">
+            <strong id="specialCorrectCount">0</strong>
+            <div class="helper">Correct</div>
+          </div>
+          <div class="score-stat">
+            <strong id="specialEcoPointsEarned">0</strong>
+            <div class="helper">EcoPoints</div>
+          </div>
+          <div class="score-stat">
+            <strong id="specialAccuracyRate">0%</strong>
+            <div class="helper">Accuracy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Quiz Results Screen -->
+    <div id="specialQuizResultsScreen" class="special-quiz-results-screen" style="display:none;">
+      <div class="results-card">
+        <div class="results-header">
+          <div class="results-icon" id="specialResultsIcon">🎉</div>
+          <h1>Special Quiz Complete!</h1>
+          <p class="results-subtitle">Here's how you performed</p>
+        </div>
+        
+        <div class="results-stats">
+          <div class="result-stat">
+            <div class="stat-value" id="specialFinalScore">0/5</div>
+            <div class="stat-label">Questions Correct</div>
+          </div>
+          <div class="result-stat">
+            <div class="stat-value" id="specialFinalEcoPoints">0</div>
+            <div class="stat-label">EcoPoints Earned</div>
+          </div>
+          <div class="result-stat">
+            <div class="stat-value" id="specialFinalAccuracy">0%</div>
+            <div class="stat-label">Accuracy</div>
+        </div>
+      </div>
+
+        <div class="results-message" id="specialResultsMessage">
+          <h3>Excellent work!</h3>
+          <p>You've completed your specialized environmental quiz!</p>
+        </div>
+
+        <div class="results-actions">
+          <button id="retakeSpecialQuizBtn" class="btn secondary">Take Another Special Quiz</button>
+          <button id="backToQuizzesBtn" class="btn primary">Back to Quizzes</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const user = Eco.requireAuth();
+
+    // Special AI Eco Quiz with Topic Selection
+    class SpecialAIEcoQuiz {
+      constructor() {
+        this.currentQuiz = [];
+        this.currentQuestionIndex = 0;
+        this.correctAnswers = 0;
+        this.wrongAnswers = 0;
+        this.ecopointsEarned = 0;
+        this.selectedAnswer = null;
+        this.isSubmitted = false;
+        this.selectedTopics = [];
+        
+        this.availableTopics = [
+          {
+            id: 'energy',
+            name: 'Energy Conservation',
+            icon: '⚡',
+            description: 'Learn about saving energy at home and work',
+            color: '#f59e0b'
+          },
+          {
+            id: 'water',
+            name: 'Water Conservation',
+            icon: '💧',
+            description: 'Discover ways to save water and protect our oceans',
+            color: '#3b82f6'
+          },
+          {
+            id: 'waste',
+            name: 'Waste Reduction',
+            icon: '♻️',
+            description: 'Master the art of reducing, reusing, and recycling',
+            color: '#10b981'
+          },
+          {
+            id: 'transport',
+            name: 'Green Transportation',
+            icon: '🚲',
+            description: 'Explore eco-friendly ways to get around',
+            color: '#8b5cf6'
+          },
+          {
+            id: 'biodiversity',
+            name: 'Biodiversity & Nature',
+            icon: '🌿',
+            description: 'Understand how to protect wildlife and ecosystems',
+            color: '#22c55e'
+          },
+          {
+            id: 'climate',
+            name: 'Climate Action',
+            icon: '🌍',
+            description: 'Learn about climate change and solutions',
+            color: '#ef4444'
+          }
+        ];
+
+        this.questionDatabase = {
+          energy: [
+            {
+              question: 'What is the most energy-efficient type of light bulb?',
+              options: ['Incandescent', 'LED', 'Halogen', 'Fluorescent'],
+              correct: 1,
+              explanation: 'LED bulbs use up to 80% less energy than incandescent bulbs and last 25 times longer!'
+            },
+            {
+              question: 'When should you unplug electronic devices to save energy?',
+              options: ['Never', 'When not in use', 'Only at night', 'Only on weekends'],
+              correct: 1,
+              explanation: 'Unplugging devices when not in use prevents "phantom energy" consumption that can cost you money!'
+            },
+            {
+              question: 'What is the optimal temperature setting for a refrigerator?',
+              options: ['32°F (0°C)', '37-40°F (3-4°C)', '45°F (7°C)', '50°F (10°C)'],
+              correct: 1,
+              explanation: 'Refrigerators should be kept between 37-40°F to maintain food safety while minimizing energy consumption.'
+            },
+            {
+              question: 'Which home appliance typically uses the most electricity?',
+              options: ['Refrigerator', 'Air conditioner', 'Washing machine', 'Television'],
+              correct: 1,
+              explanation: 'Air conditioners are typically the largest energy consumers in homes, especially during hot weather.'
+            },
+            {
+              question: 'What percentage of energy is lost through windows in a typical home?',
+              options: ['10-15%', '25-30%', '40-45%', '60-65%'],
+              correct: 1,
+              explanation: 'Windows can account for 25-30% of heating and cooling energy loss in homes due to poor insulation.'
+            }
+          ],
+          water: [
+            {
+              question: 'How long should you shower to conserve water?',
+              options: ['20 minutes', '5 minutes', '15 minutes', '30 minutes'],
+              correct: 1,
+              explanation: 'A 5-minute shower uses about 25 gallons of water, while a 20-minute shower uses 100 gallons!'
+            },
+            {
+              question: 'What is the best time to water your garden?',
+              options: ['Noon', 'Early morning', 'Evening', 'Anytime'],
+              correct: 1,
+              explanation: 'Early morning watering reduces evaporation and helps prevent plant diseases.'
+            },
+            {
+              question: 'How much water does a leaky faucet waste per day?',
+              options: ['1-2 gallons', '5-10 gallons', '20-30 gallons', '50+ gallons'],
+              correct: 2,
+              explanation: 'A single leaky faucet can waste 20-30 gallons of water per day, significantly impacting water conservation efforts.'
+            },
+            {
+              question: 'What is the most water-efficient way to wash dishes?',
+              options: ['Hand washing with running water', 'Dishwasher with full load', 'Hand washing with basin', 'Pre-rinse then dishwasher'],
+              correct: 1,
+              explanation: 'Modern dishwashers with full loads are more water-efficient than hand washing, using 3-5 gallons vs 20+ gallons.'
+            },
+            {
+              question: 'Which type of grass requires the least water?',
+              options: ['Bermuda grass', 'Kentucky bluegrass', 'Buffalo grass', 'St. Augustine grass'],
+              correct: 2,
+              explanation: 'Buffalo grass is a native drought-resistant grass that requires minimal watering compared to other common lawn grasses.'
+            }
+          ],
+          waste: [
+            {
+              question: 'What should you do with food scraps?',
+              options: ['Throw in trash', 'Compost them', 'Flush down toilet', 'Burn them'],
+              correct: 1,
+              explanation: 'Composting food scraps creates nutrient-rich soil and reduces landfill waste!'
+            },
+            {
+              question: 'Which item takes the longest to decompose?',
+              options: ['Banana peel', 'Plastic bottle', 'Paper bag', 'Apple core'],
+              correct: 1,
+              explanation: 'Plastic bottles can take 450+ years to decompose, while organic materials break down much faster.'
+            },
+            {
+              question: 'What is the most effective way to reduce plastic waste?',
+              options: ['Recycle more plastic', 'Use reusable containers', 'Buy in bulk', 'Switch to paper'],
+              correct: 1,
+              explanation: 'Using reusable containers eliminates the need for single-use plastics entirely, which is more effective than recycling.'
+            },
+            {
+              question: 'How much of household waste can be composted?',
+              options: ['10-20%', '30-40%', '50-60%', '70-80%'],
+              correct: 1,
+              explanation: 'Approximately 30-40% of household waste consists of organic materials that can be composted instead of sent to landfills.'
+            },
+            {
+              question: 'What is the proper way to dispose of electronic waste?',
+              options: ['Throw in regular trash', 'Take to e-waste recycling center', 'Burn it', 'Bury it'],
+              correct: 1,
+              explanation: 'Electronic waste contains hazardous materials and should be taken to specialized e-waste recycling centers for proper disposal.'
+            }
+          ],
+          transport: [
+            {
+              question: 'What is the most eco-friendly way to travel short distances?',
+              options: ['Drive alone', 'Walk or bike', 'Take a taxi', 'Use a motorcycle'],
+              correct: 1,
+              explanation: 'Walking or biking produces zero emissions and provides health benefits!'
+            },
+            {
+              question: 'How can you make car trips more eco-friendly?',
+              options: ['Drive faster', 'Carpool with others', 'Use air conditioning always', 'Idle the engine'],
+              correct: 1,
+              explanation: 'Carpooling reduces the number of vehicles on the road and cuts emissions per person!'
+            },
+            {
+              question: 'What is the most fuel-efficient driving speed?',
+              options: ['80 mph', '55-65 mph', '90 mph', '40 mph'],
+              correct: 1,
+              explanation: 'Driving at 55-65 mph is typically the most fuel-efficient speed for most vehicles.'
+            },
+            {
+              question: 'Which type of vehicle has the lowest carbon footprint?',
+              options: ['Gasoline car', 'Electric car (coal-powered grid)', 'Electric car (renewable grid)', 'Hybrid car'],
+              correct: 2,
+              explanation: 'Electric cars powered by renewable energy have the lowest carbon footprint over their lifetime.'
+            },
+            {
+              question: 'How much fuel does idling for 10 minutes waste?',
+              options: ['0.1 gallons', '0.2-0.3 gallons', '0.5 gallons', '1 gallon'],
+              correct: 1,
+              explanation: 'Idling for 10 minutes wastes 0.2-0.3 gallons of fuel and produces unnecessary emissions.'
+            }
+          ],
+          biodiversity: [
+            {
+              question: 'What helps support local wildlife?',
+              options: ['Planting native species', 'Using pesticides', 'Removing all plants', 'Concrete landscaping'],
+              correct: 0,
+              explanation: 'Native plants provide food and habitat for local wildlife and require less maintenance!'
+            },
+            {
+              question: 'Why are bees important for the environment?',
+              options: ['They make honey', 'They pollinate plants', 'They look pretty', 'They eat pests'],
+              correct: 1,
+              explanation: 'Bees pollinate 80% of flowering plants, including many food crops we depend on!'
+            },
+            {
+              question: 'What percentage of global food production depends on pollinators?',
+              options: ['10-20%', '30-40%', '60-70%', '80-90%'],
+              correct: 2,
+              explanation: 'Approximately 60-70% of global food production depends on pollinators like bees, butterflies, and birds.'
+            },
+            {
+              question: 'Which practice is most harmful to soil biodiversity?',
+              options: ['Crop rotation', 'Monoculture farming', 'Organic farming', 'Cover cropping'],
+              correct: 1,
+              explanation: 'Monoculture farming reduces soil biodiversity by growing the same crop repeatedly, depleting soil nutrients and beneficial organisms.'
+            },
+            {
+              question: 'What is the primary cause of species extinction?',
+              options: ['Climate change', 'Habitat destruction', 'Pollution', 'Overhunting'],
+              correct: 1,
+              explanation: 'Habitat destruction is the leading cause of species extinction, accounting for about 80% of all extinctions.'
+            }
+          ],
+          climate: [
+            {
+              question: 'What is the main cause of climate change?',
+              options: ['Natural weather patterns', 'Greenhouse gas emissions', 'Solar activity', 'Ocean currents'],
+              correct: 1,
+              explanation: 'Human activities that increase greenhouse gases in the atmosphere are the primary cause of climate change.'
+            },
+            {
+              question: 'How can individuals help fight climate change?',
+              options: ['Ignore the problem', 'Reduce energy use', 'Drive more often', 'Use more plastic'],
+              correct: 1,
+              explanation: 'Reducing energy consumption is one of the most effective ways individuals can combat climate change.'
+            },
+            {
+              question: 'What is the target temperature increase limit set by the Paris Agreement?',
+              options: ['1°C above pre-industrial levels', '1.5°C above pre-industrial levels', '2°C above pre-industrial levels', '3°C above pre-industrial levels'],
+              correct: 1,
+              explanation: 'The Paris Agreement aims to limit global temperature increase to well below 2°C, preferably 1.5°C above pre-industrial levels.'
+            },
+            {
+              question: 'Which sector produces the most greenhouse gas emissions globally?',
+              options: ['Transportation', 'Electricity and heat production', 'Industry', 'Agriculture'],
+              correct: 1,
+              explanation: 'Electricity and heat production account for about 25% of global greenhouse gas emissions, making it the largest sector.'
+            },
+            {
+              question: 'What is the primary greenhouse gas emitted by human activities?',
+              options: ['Methane', 'Carbon dioxide', 'Nitrous oxide', 'Water vapor'],
+              correct: 1,
+              explanation: 'Carbon dioxide (CO2) is the primary greenhouse gas emitted by human activities, accounting for about 76% of total emissions.'
+            }
+          ]
+        };
+      }
+
+      showTopicSelection() {
+        document.getElementById('topicSelectionScreen').style.display = 'block';
+        document.getElementById('specialQuizQuestionScreen').style.display = 'none';
+        document.getElementById('specialQuizResultsScreen').style.display = 'none';
+        this.renderTopics();
+      }
+
+      renderTopics() {
+        const topicsGrid = document.getElementById('topicsGrid');
+        topicsGrid.innerHTML = '';
+
+        this.availableTopics.forEach(topic => {
+          const topicElement = document.createElement('div');
+          topicElement.className = 'topic-card';
+          topicElement.innerHTML = `
+            <div class="topic-icon" style="background-color: ${topic.color}20; color: ${topic.color}">
+              ${topic.icon}
+            </div>
+            <h4>${topic.name}</h4>
+            <p>${topic.description}</p>
+            <div class="topic-checkbox">
+              <input type="checkbox" id="topic-${topic.id}" value="${topic.id}">
+              <label for="topic-${topic.id}">Select</label>
+            </div>
+          `;
+
+          topicElement.querySelector('input').addEventListener('change', (e) => {
+            this.toggleTopic(topic.id, e.target.checked);
+          });
+
+          topicsGrid.appendChild(topicElement);
+        });
+      }
+
+      toggleTopic(topicId, isSelected) {
+        if (isSelected) {
+          if (!this.selectedTopics.includes(topicId)) {
+            this.selectedTopics.push(topicId);
+          }
+        } else {
+          this.selectedTopics = this.selectedTopics.filter(id => id !== topicId);
+        }
+
+        const startBtn = document.getElementById('startSpecialQuizBtn');
+        const errorMsg = document.getElementById('topicSelectionError');
+        
+        if (this.selectedTopics.length > 0) {
+          startBtn.disabled = false;
+          errorMsg.style.display = 'none';
+        } else {
+          startBtn.disabled = true;
+        }
+      }
+
+      generateQuiz() {
+        const quiz = [];
+        
+        // Get 5 questions from each selected topic
+        this.selectedTopics.forEach(topicId => {
+          const topicQuestions = this.questionDatabase[topicId] || [];
+          const selectedQuestions = topicQuestions.slice(0, 5); // Take all 5 questions from each topic
+          quiz.push(...selectedQuestions.map(q => ({ ...q, category: this.availableTopics.find(t => t.id === topicId).name })));
+        });
+
+        // Shuffle the questions
+        return quiz.sort(() => Math.random() - 0.5);
+      }
+
+      startQuiz() {
+        if (this.selectedTopics.length === 0) {
+          document.getElementById('topicSelectionError').style.display = 'block';
+          return;
+        }
+
+        this.currentQuiz = this.generateQuiz();
+        this.currentQuestionIndex = 0;
+        this.correctAnswers = 0;
+        this.wrongAnswers = 0;
+        this.ecopointsEarned = 0;
+        this.selectedAnswer = null;
+        this.isSubmitted = false;
+
+        this.showQuestionScreen();
+        this.renderQuestion();
+        this.updateProgress();
+      }
+
+      showQuestionScreen() {
+        document.getElementById('topicSelectionScreen').style.display = 'none';
+        document.getElementById('specialQuizQuestionScreen').style.display = 'block';
+        document.getElementById('specialQuizResultsScreen').style.display = 'none';
+      }
+
+      showResultsScreen() {
+        document.getElementById('topicSelectionScreen').style.display = 'none';
+        document.getElementById('specialQuizQuestionScreen').style.display = 'none';
+        document.getElementById('specialQuizResultsScreen').style.display = 'block';
+        this.renderResults();
+      }
+
+      renderQuestion() {
+        const question = this.currentQuiz[this.currentQuestionIndex];
+        
+        document.getElementById('specialQuestionText').textContent = question.question;
+        document.getElementById('specialQuestionCategory').textContent = question.category;
+        
+        const optionsContainer = document.getElementById('specialOptionsContainer');
+        optionsContainer.innerHTML = '';
+        
+        question.options.forEach((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'option-item';
+          optionElement.innerHTML = `
+            <input type="radio" name="specialAnswer" value="${index}" id="specialOption${index}">
+            <label for="specialOption${index}" class="option-label">
+              <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+              <span class="option-text">${option}</span>
+            </label>
+          `;
+          
+          optionElement.querySelector('input').addEventListener('change', () => {
+            this.selectedAnswer = parseInt(optionElement.querySelector('input').value);
+            document.getElementById('specialSubmitBtn').disabled = false;
+          });
+          
+          optionsContainer.appendChild(optionElement);
+        });
+
+        // Reset UI state
+        document.getElementById('specialSubmitBtn').disabled = true;
+        document.getElementById('specialSubmitBtn').style.display = 'inline-flex';
+        document.getElementById('specialNextBtn').style.display = 'none';
+        document.getElementById('specialSkipBtn').style.display = 'inline-flex';
+        document.getElementById('specialQuizFeedback').style.display = 'none';
+        this.selectedAnswer = null;
+        this.isSubmitted = false;
+      }
+
+      submitAnswer() {
+        if (this.isSubmitted || this.selectedAnswer === null) return;
+        
+        this.isSubmitted = true;
+        const question = this.currentQuiz[this.currentQuestionIndex];
+        const isCorrect = this.selectedAnswer === question.correct;
+        
+        if (isCorrect) {
+          this.correctAnswers++;
+          this.ecopointsEarned += 2;
+          Eco.awardPoints(user, 2, 'Special quiz correct answer');
+        } else {
+          this.wrongAnswers++;
+          // Subtract 1 ecopoint for every 2 wrong answers
+          if (this.wrongAnswers % 2 === 0) {
+            this.ecopointsEarned = Math.max(0, this.ecopointsEarned - 1);
+            Eco.awardPoints(user, -1, 'Special quiz wrong answer penalty');
+          }
+        }
+
+        this.showFeedback(isCorrect, question);
+        this.updateScore();
+        this.updateProgress();
+        
+        // Disable all options
+        document.querySelectorAll('input[name="specialAnswer"]').forEach(input => {
+          input.disabled = true;
+        });
+        
+        // Highlight correct answer
+        const correctOption = document.querySelector(`input[value="${question.correct}"]`);
+        if (correctOption) {
+          correctOption.parentElement.classList.add('correct-answer');
+        }
+        
+        // Highlight selected answer if wrong
+        if (!isCorrect) {
+          const selectedOption = document.querySelector(`input[value="${this.selectedAnswer}"]`);
+          if (selectedOption) {
+            selectedOption.parentElement.classList.add('wrong-answer');
+          }
+        }
+
+        document.getElementById('specialSubmitBtn').style.display = 'none';
+        document.getElementById('specialNextBtn').style.display = 'inline-flex';
+        document.getElementById('specialSkipBtn').style.display = 'none';
+      }
+
+      showFeedback(isCorrect, question) {
+        const feedback = document.getElementById('specialQuizFeedback');
+        const icon = document.getElementById('specialFeedbackIcon');
+        const title = document.getElementById('specialFeedbackTitle');
+        const explanation = document.getElementById('specialFeedbackExplanation');
+        
+        if (isCorrect) {
+          icon.textContent = '✓';
+          icon.className = 'feedback-icon correct';
+          title.textContent = 'Correct!';
+          title.className = 'feedback-title correct';
+        } else {
+          icon.textContent = '✗';
+          icon.className = 'feedback-icon incorrect';
+          title.textContent = 'Incorrect';
+          title.className = 'feedback-title incorrect';
+        }
+        
+        explanation.textContent = question.explanation;
+        feedback.style.display = 'block';
+      }
+
+      nextQuestion() {
+        this.currentQuestionIndex++;
+        
+        if (this.currentQuestionIndex >= this.currentQuiz.length) {
+          this.showResultsScreen();
+        } else {
+          this.renderQuestion();
+          this.updateProgress();
+        }
+      }
+
+      skipQuestion() {
+        this.nextQuestion();
+      }
+
+      updateProgress() {
+        const progress = ((this.currentQuestionIndex + 1) / this.currentQuiz.length) * 100;
+        document.getElementById('specialProgressFill').style.width = `${progress}%`;
+        document.getElementById('specialCurrentQuestion').textContent = this.currentQuestionIndex + 1;
+        document.getElementById('specialTotalQuestions').textContent = this.currentQuiz.length;
+      }
+
+      updateScore() {
+        document.getElementById('specialCorrectCount').textContent = this.correctAnswers;
+        document.getElementById('specialEcoPointsEarned').textContent = this.ecopointsEarned;
+        
+        const accuracy = this.currentQuestionIndex > 0 ? 
+          Math.round((this.correctAnswers / (this.currentQuestionIndex + 1)) * 100) : 0;
+        document.getElementById('specialAccuracyRate').textContent = `${accuracy}%`;
+      }
+
+      renderResults() {
+        const accuracy = Math.round((this.correctAnswers / this.currentQuiz.length) * 100);
+        
+        document.getElementById('specialFinalScore').textContent = `${this.correctAnswers}/${this.currentQuiz.length}`;
+        document.getElementById('specialFinalEcoPoints').textContent = this.ecopointsEarned;
+        document.getElementById('specialFinalAccuracy').textContent = `${accuracy}%`;
+        
+        const resultsIcon = document.getElementById('specialResultsIcon');
+        const resultsMessage = document.getElementById('specialResultsMessage');
+        
+        if (accuracy >= 80) {
+          resultsIcon.textContent = '🎉';
+          resultsMessage.innerHTML = `
+            <h3>Outstanding Performance!</h3>
+            <p>You scored ${accuracy}% and earned ${this.ecopointsEarned} EcoPoints! Your specialized knowledge is impressive!</p>
+          `;
+        } else if (accuracy >= 60) {
+          resultsIcon.textContent = '👍';
+          resultsMessage.innerHTML = `
+            <h3>Great Job!</h3>
+            <p>You scored ${accuracy}% and earned ${this.ecopointsEarned} EcoPoints! Keep exploring these topics!</p>
+          `;
+        } else {
+          resultsIcon.textContent = '💪';
+          resultsMessage.innerHTML = `
+            <h3>Keep Learning!</h3>
+            <p>You scored ${accuracy}% and earned ${this.ecopointsEarned} EcoPoints! Practice more to master these topics!</p>
+          `;
+        }
+      }
+    }
+
+    // Initialize special quiz
+    const specialQuiz = new SpecialAIEcoQuiz();
+    specialQuiz.showTopicSelection();
+
+    // Event listeners
+    document.getElementById('startSpecialQuizBtn').addEventListener('click', () => specialQuiz.startQuiz());
+    document.getElementById('specialSubmitBtn').addEventListener('click', () => specialQuiz.submitAnswer());
+    document.getElementById('specialNextBtn').addEventListener('click', () => specialQuiz.nextQuestion());
+    document.getElementById('specialSkipBtn').addEventListener('click', () => specialQuiz.skipQuestion());
+    document.getElementById('retakeSpecialQuizBtn').addEventListener('click', () => specialQuiz.showTopicSelection());
+    document.getElementById('backToQuizzesBtn').addEventListener('click', () => {
+      window.location.href = 'quiz.html';
+    });
+  </script>
+</body>
+</html>

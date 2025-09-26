@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "!/@(index.html|login.html|about.html|certificate.html|challenges.html|dashboard.html|events.html|game.html|leaderboard.html|lessons.html|quiz-special.html|quiz.html|resources.html|styles.css|app.js|login-module.js|firebase-config.js)",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

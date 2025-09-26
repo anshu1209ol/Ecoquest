@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links" style="display:none"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:20px;">
+    <div class="grid">
+      <div class="card dashboard-card progress-card">
+        <div class="card-header">
+          <h2>📊 Your Progress</h2>
+          <div class="level-badge" id="levelBadge">🌱 Beginner</div>
+        </div>
+        
+        <div class="user-profile">
+          <div class="avatar-container">
+            <img id="uAvatar" alt="avatar" src="" class="user-avatar">
+            <div class="avatar-ring"></div>
+            <button class="edit-avatar-btn" onclick="openEditProfile()" title="Edit Profile">
+              <span class="edit-icon">✏️</span>
+            </button>
+          </div>
+          <div class="user-info">
+            <div class="user-name-container">
+              <div id="uName" class="user-name"></div>
+              <button class="edit-name-btn" onclick="openEditProfile()" title="Edit Profile">
+                <span class="edit-icon">✏️</span>
+              </button>
+            </div>
+            <div class="user-school" id="uSchool"></div>
+            <div class="user-level" id="userLevel">Level 1</div>
+          </div>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">🎯 Certificate Progress</span>
+            <span class="progress-percentage" id="progressPercentage">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="uProgress" style="width:0%"></div>
+              <div class="progress-glow" id="progressGlow"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card points-card">
+            <div class="stat-icon">💚</div>
+            <div class="stat-content">
+              <div class="stat-value" id="uPoints">0</div>
+              <div class="stat-label">Eco-Points</div>
+            </div>
+          </div>
+          <div class="stat-card badges-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-content">
+              <div class="stat-value" id="uBadges">-</div>
+              <div class="stat-label">Badges</div>
+            </div>
+          </div>
+          <div class="stat-card next-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+              <div class="stat-value" id="uNext">-</div>
+              <div class="stat-label">to next badge</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <a class="btn primary quiz-btn" href="quiz.html">
+            <span class="btn-icon">🧠</span>
+            <span class="btn-text">Take a Quiz</span>
+          </a>
+          <a class="btn secondary task-btn" href="challenges.html">
+            <span class="btn-icon">🌱</span>
+            <span class="btn-text">Complete a Task</span>
+          </a>
+        </div>
+      </div>
+      
+      <div class="card dashboard-card daily-card">
+        <div class="card-header">
+          <h3>🌅 Daily Login</h3>
+          <div class="streak-badge" id="streakBadge">🔥 0 day streak</div>
+        </div>
+        <div class="daily-content">
+          <div class="daily-icon">🎁</div>
+          <p class="daily-description">Claim +2 points once per day and build your streak!</p>
+          <div class="daily-reward">
+            <span class="reward-amount">+2</span>
+            <span class="reward-text">Eco-Points</span>
+          </div>
+        </div>
+        <button id="claimDaily" class="btn primary claim-btn">
+          <span class="btn-icon">🎯</span>
+          <span class="btn-text">Claim daily +2</span>
+        </button>
+      </div>
+      
+      <div class="card dashboard-card certificate-card">
+        <div class="card-header">
+          <h3>🏆 Certificate</h3>
+          <div class="cert-status" id="certStatus">🔒 Locked</div>
+        </div>
+        <div class="cert-content">
+          <div class="cert-icon">📜</div>
+          <p class="cert-description">Reach 500 points to unlock your certificate.</p>
+          <div class="cert-progress">
+            <div class="cert-progress-bar">
+              <div class="cert-progress-fill" id="certProgressFill"></div>
+            </div>
+            <span class="cert-progress-text" id="certProgressText">0/500 points</span>
+          </div>
+        </div>
+        <a class="btn secondary cert-btn" href="certificate.html">
+          <span class="btn-icon">👀</span>
+          <span class="btn-text">View</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Edit Profile Modal -->
+  <div id="editProfileModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✏️ Edit Profile</h3>
+        <button class="close-btn" onclick="closeEditProfile()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editProfileForm">
+          <div class="form-group">
+            <label for="editName">👤 Full Name</label>
+            <input type="text" id="editName" name="name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="editSchool">🏫 School/University</label>
+            <input type="text" id="editSchool" name="school" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="editEmail">📧 Email</label>
+            <input type="email" id="editEmail" name="email" readonly>
+            <small class="form-help">Email cannot be changed</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="editAvatar">🖼️ Profile Picture</label>
+            <div class="avatar-upload">
+              <div class="current-avatar">
+                <img id="currentAvatar" alt="Current Avatar" src="">
+                <div class="avatar-overlay">
+                  <span class="upload-text">📷 Click to change</span>
+                </div>
+              </div>
+              <input type="file" id="editAvatar" name="avatar" accept="image/*" style="display: none;">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" onclick="closeEditProfile()">❌ Cancel</button>
+        <button type="button" class="btn primary" onclick="saveProfile()">💾 Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const user = Eco.requireAuth();
+    if (user) {
+      // Update user profile
+      document.getElementById('uAvatar').src = user.avatarDataUrl || Eco.initialsAvatar(user.name);
+      document.getElementById('uName').textContent = user.name || user.email;
+      document.getElementById('uSchool').textContent = user.school || '';
+      
+      // Update points and badges
+      document.getElementById('uPoints').textContent = Eco.formatPoints(user.points);
+      document.getElementById('uBadges').textContent = (user.badges||[]).join(', ') || 'None';
+      
+      // Calculate progress
+      const pct = Math.min(100, Math.round((user.points / Eco.RULES.certificateThreshold) * 100));
+      document.getElementById('uProgress').style.width = pct + '%';
+      document.getElementById('progressPercentage').textContent = pct + '%';
+      
+      // Update certificate progress
+      const certProgress = Math.min(100, (user.points / 500) * 100);
+      document.getElementById('certProgressFill').style.width = certProgress + '%';
+      document.getElementById('certProgressText').textContent = `${user.points}/500 points`;
+      
+      // Update level and badges
+      updateUserLevel(user);
+      updateBadges(user);
+      updateCertificateStatus(user);
+      
+      // Calculate next badge
+      const next = user.points < Eco.RULES.silverThreshold ? Eco.RULES.silverThreshold : 
+                   user.points < Eco.RULES.goldThreshold ? Eco.RULES.goldThreshold : 
+                   user.points < Eco.RULES.platinumThreshold ? Eco.RULES.platinumThreshold : 
+                   Eco.RULES.certificateThreshold;
+      document.getElementById('uNext').textContent = Math.max(0, next - user.points) + ' pts';
+
+      // Daily login functionality
+      document.getElementById('claimDaily').onclick = () => {
+        const updated = Eco.findUser(user.email);
+        if (Eco.grantDailyLoginIfEligible(updated)) {
+          showNotification('🎉 Daily +2 Eco-Points awarded!', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showNotification('⏰ Already claimed today!', 'info');
+        }
+      };
+    }
+    
+    function updateUserLevel(user) {
+      const points = user.points || 0;
+      let level, levelEmoji, levelName;
+      
+      if (points >= 500) {
+        level = 5; levelEmoji = '👑'; levelName = 'Eco Master';
+      } else if (points >= 400) {
+        level = 4; levelEmoji = '💎'; levelName = 'Eco Expert';
+      } else if (points >= 250) {
+        level = 3; levelEmoji = '🥇'; levelName = 'Eco Champion';
+      } else if (points >= 100) {
+        level = 2; levelEmoji = '🌱'; levelName = 'Eco Explorer';
+      } else {
+        level = 1; levelEmoji = '🌿'; levelName = 'Eco Beginner';
+      }
+      
+      document.getElementById('userLevel').textContent = `Level ${level}`;
+      document.getElementById('levelBadge').innerHTML = `${levelEmoji} ${levelName}`;
+    }
+    
+    function updateBadges(user) {
+      const badges = user.badges || [];
+      let badgeText = 'None';
+      let badgeEmoji = '🏆';
+      
+      if (badges.length > 0) {
+        badgeText = badges.join(', ');
+        if (badges.includes('Platinum')) badgeEmoji = '💎';
+        else if (badges.includes('Gold')) badgeEmoji = '🥇';
+        else if (badges.includes('Silver')) badgeEmoji = '🥈';
+      }
+      
+      document.getElementById('uBadges').innerHTML = `<span class="badge-emoji">${badgeEmoji}</span> ${badgeText}`;
+    }
+    
+    function updateCertificateStatus(user) {
+      const points = user.points || 0;
+      const certStatus = document.getElementById('certStatus');
+      
+      if (points >= 500) {
+        certStatus.innerHTML = '✅ Unlocked';
+        certStatus.style.color = 'var(--eco-green)';
+      } else {
+        certStatus.innerHTML = '🔒 Locked';
+        certStatus.style.color = 'var(--eco-orange)';
+      }
+    }
+    
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `notification notification-${type}`;
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? 'var(--eco-green)' : 'var(--eco-blue)'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 2000);
+    }
+    
+    function openEditProfile() {
+      const modal = document.getElementById('editProfileModal');
+      const currentUser = Eco.findUser(user.email);
+      
+      // Populate form with current user data
+      document.getElementById('editName').value = currentUser.name || '';
+      document.getElementById('editSchool').value = currentUser.school || '';
+      document.getElementById('editEmail').value = currentUser.email || '';
+      document.getElementById('currentAvatar').src = currentUser.avatarDataUrl || Eco.initialsAvatar(currentUser.name);
+      
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeEditProfile() {
+      const modal = document.getElementById('editProfileModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+    
+    function saveProfile() {
+      const form = document.getElementById('editProfileForm');
+      const formData = new FormData(form);
+      
+      const currentUser = Eco.findUser(user.email);
+      if (!currentUser) {
+        showNotification('❌ User not found!', 'error');
+        return;
+      }
+      
+      // Update user data
+      currentUser.name = formData.get('name') || currentUser.name;
+      currentUser.school = formData.get('school') || currentUser.school;
+      
+      // Handle avatar upload
+      const avatarFile = formData.get('avatar');
+      if (avatarFile && avatarFile.size > 0) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentUser.avatarDataUrl = e.target.result;
+          saveUserData();
+        };
+        reader.readAsDataURL(avatarFile);
+      } else {
+        saveUserData();
+      }
+    }
+    
+    function saveUserData() {
+      const currentUser = Eco.findUser(user.email);
+      Eco.upsertUser(currentUser);
+      
+      // Update the dashboard display
+      document.getElementById('uName').textContent = currentUser.name || currentUser.email;
+      document.getElementById('uSchool').textContent = currentUser.school || '';
+      document.getElementById('uAvatar').src = currentUser.avatarDataUrl || Eco.initialsAvatar(currentUser.name);
+      
+      showNotification('✅ Profile updated successfully!', 'success');
+      closeEditProfile();
+    }
+    
+    // Handle avatar click
+    document.addEventListener('DOMContentLoaded', function() {
+      const avatarUpload = document.querySelector('.current-avatar');
+      const avatarInput = document.getElementById('editAvatar');
+      
+      if (avatarUpload && avatarInput) {
+        avatarUpload.addEventListener('click', () => {
+          avatarInput.click();
+        });
+        
+        avatarInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              document.getElementById('currentAvatar').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+    });
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('editProfileModal');
+      if (event.target === modal) {
+        closeEditProfile();
+      }
+    }
+  </script>
+</body>
+</html>

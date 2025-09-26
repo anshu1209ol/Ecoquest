@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Certificate</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links" style="display:none"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:20px;">
+    <div class="grid">
+      <div class="card">
+        <h2>Eco Achievement Certificate</h2>
+        <canvas id="cert" width="1000" height="700" style="width:100%; border:1px solid var(--eco-border);"></canvas>
+        <div class="nav-links" style="margin-top:10px;">
+          <button id="downloadBtn" class="btn">Download PNG</button>
+          <label class="btn">Upload Photo<input type="file" id="photo" accept="image/*" style="display:none"></label>
+        </div>
+        <div class="notice" id="lockMsg" style="margin-top:12px; display:none;">Reach 500 Eco-Points to unlock your certificate.</div>
+      </div>
+      <div class="card">
+        <h3>Badge Status</h3>
+        <ul id="badgeList"></ul>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const user = Eco.requireAuth();
+    const canvas = document.getElementById('cert');
+    const ctx = canvas.getContext('2d');
+
+    function draw(bgImg) {
+      ctx.fillStyle = '#ecfdf5'; ctx.fillRect(0,0,canvas.width, canvas.height);
+      const grad = ctx.createLinearGradient(0,0,canvas.width,0);
+      grad.addColorStop(0,'#16a34a'); grad.addColorStop(1,'#065f46');
+      ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width, 120);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 44px Arial';
+      ctx.fillText('EcoQuest Certificate of Achievement', 40, 80);
+
+      ctx.fillStyle = '#064e3b';
+      ctx.font = '22px Arial';
+      ctx.fillText('Issued under the guidance of School Authorities (India)', 40, 150);
+
+      ctx.fillStyle = '#064e3b';
+      ctx.font = '28px Arial';
+      ctx.fillText('Awarded to', 40, 210);
+      ctx.font = 'bold 42px Arial';
+      ctx.fillText(user.name || user.email, 40, 260);
+
+      ctx.font = '24px Arial';
+      ctx.fillText('School/College: ' + (user.school||'-'), 40, 310);
+      ctx.fillText('Eco-Points: ' + (user.points||0), 40, 350);
+      ctx.font = '20px Arial';
+      ctx.fillText('Badges: ' + ((user.badges||[]).join(', ')||'None'), 40, 390);
+
+      if (bgImg) {
+        const size = 180;
+        ctx.save(); ctx.beginPath(); ctx.arc(canvas.width-100, 200, size/2, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+        ctx.drawImage(bgImg, canvas.width-190, 110, size, size); ctx.restore();
+      }
+
+      ctx.strokeStyle = '#e5e7eb'; ctx.strokeRect(20, 20, canvas.width-40, canvas.height-40);
+      ctx.font = '18px Arial'; ctx.fillStyle = '#6b7280';
+      ctx.fillText('Certified by Principal / Head of Institution', 40, canvas.height - 60);
+      ctx.fillText(new Date().toDateString(), canvas.width - 260, canvas.height - 60);
+
+      if (user.points < Eco.RULES.certificateThreshold) {
+        ctx.save();
+        ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.rotate(-Math.PI/6);
+        ctx.font = 'bold 120px Arial';
+        ctx.fillStyle = 'rgba(220, 38, 38, 0.15)';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPECIMEN', 0, 0);
+        ctx.restore();
+      }
+    }
+
+    function renderCertificate() {
+      const locked = user.points < Eco.RULES.certificateThreshold;
+      document.getElementById('lockMsg').style.display = locked ? 'block' : 'none';
+      document.getElementById('downloadBtn').disabled = locked;
+      const img = new Image();
+      img.onload = () => draw(img);
+      img.onerror = () => draw(null);
+      img.src = user.avatarDataUrl || Eco.initialsAvatar(user.name);
+      const ul = document.getElementById('badgeList');
+      ul.innerHTML = (user.badges||[]).map(b=>`<li>${b}</li>`).join('') || '<li>No badges yet</li>';
+    }
+
+    document.getElementById('downloadBtn').onclick = () => {
+      const link = document.createElement('a');
+      link.download = 'ecoquest-certificate.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+
+    document.getElementById('photo').onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { user.avatarDataUrl = reader.result; Eco.upsertUser(user); renderCertificate(); };
+      reader.readAsDataURL(file);
+    };
+
+    renderCertificate();
+  </script>
+</body>
+</html>

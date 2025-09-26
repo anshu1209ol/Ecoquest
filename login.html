@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Sign in / Sign up</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links" style="display:none"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="logo.svg" alt="EcoQuest Logo" class="auth-logo">
+        <h2 id="auth-title">Welcome to EcoQuest</h2>
+        <p id="auth-subtitle">Sign in to continue your eco journey</p>
+      </div>
+
+      <div class="auth-toggle-buttons">
+        <button id="show-login" class="active">Login</button>
+        <button id="show-signup">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required>
+          <span class="password-toggle">👁️</span>
+        </div>
+        <a href="#" class="forgot-password">Forgot your password?</a>
+        <button type="submit" class="btn primary auth-btn">Sign In</button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="signup-form" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label for="signup-email">Email Address</label>
+          <input type="email" id="signup-email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="signup-name">Full Name</label>
+          <input type="text" id="signup-name" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="signup-school">School/College</label>
+          <input type="text" id="signup-school" placeholder="Your institution name" required>
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="••••••••" required>
+          <span class="password-toggle">👁️</span>
+        </div>
+        <div class="form-group">
+          <label for="signup-confirm-password">Confirm Password</label>
+          <input type="password" id="signup-confirm-password" placeholder="••••••••" required>
+          <span class="password-toggle">👁️</span>
+        </div>
+        <button type="submit" class="btn primary auth-btn">Create Account</button>
+      </form>
+
+      <div class="auth-divider">
+        <span>or continue with</span>
+      </div>
+
+      <div class="social-login">
+        <button class="btn social-btn google-btn">Continue with Google</button>
+        <button class="btn social-btn facebook-btn">Continue with Facebook</button>
+      </div>
+
+      <div class="auth-footer">
+        <a href="index.html" class="back-to-home">Back to Home</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script type="module" src="./login-module.js" defer></script>
+</body>
+</html>

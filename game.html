@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoQuest | Mini Game</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    #gameWrap { background:#ecfdf5; border:1px solid var(--eco-border); border-radius:12px; padding:12px; }
+    #gameCanvas { width:100%; height:360px; background:white; border:1px solid var(--eco-border); border-radius:8px; display:block; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <div class="logo"></div>
+        <div class="title">EcoQuest</div>
+      </a>
+      <div class="nav-links">
+        <a class="btn ghost" href="leaderboard.html">Leaderboard</a>
+        <a class="btn ghost" href="quiz.html">Quizzes</a>
+        <a class="btn ghost" href="challenges.html">Challenges</a>
+        <a class="btn ghost" href="game.html">Mini Game</a>
+        <a class="btn ghost" href="certificate.html">Certificate</a>
+        <div id="authButtons" class="nav-links" style="display:none"></div>
+        <div id="navUser" class="userbar" style="display:none">
+          <img alt="avatar" src=""/>
+          <span></span>
+          <button id="logoutBtn" class="btn">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:20px;">
+    <div class="card" id="gameWrap">
+      <h2>Eco Catch</h2>
+      <p class="helper">Move the basket with left/right to catch 15 falling leaves. Win to earn +20 Eco-Points!</p>
+      <canvas id="gameCanvas" width="800" height="360"></canvas>
+      <div class="nav-links" style="margin-top:10px;">
+        <button id="startBtn" class="btn primary">Start</button>
+        <div class="kpi"><strong id="caught">0</strong><div class="helper">Caught</div></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const user = Eco.requireAuth();
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let running = false;
+    let basketX = canvas.width/2 - 40;
+    const basketW = 80, basketH = 14;
+    let leaves = [];
+    let score = 0;
+
+    function spawnLeaf() {
+      leaves.push({ x: Math.random()* (canvas.width-12)+6, y: -10, vy: 1.8 + Math.random()*1.8 });
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+      // basket
+      ctx.fillStyle = '#16a34a';
+      ctx.fillRect(basketX, canvas.height-30, basketW, basketH);
+      // leaves
+      ctx.fillStyle = '#65a30d';
+      leaves.forEach(l => { ctx.beginPath(); ctx.arc(l.x, l.y, 6, 0, Math.PI*2); ctx.fill(); });
+      // score
+      ctx.fillStyle = '#065f46';
+      ctx.font = '16px Arial';
+      ctx.fillText('Caught: ' + score, 10, 20);
+    }
+
+    function update() {
+      leaves.forEach(l => l.y += l.vy);
+      leaves = leaves.filter(l => l.y < canvas.height + 10);
+      leaves.forEach(l => {
+        if (l.y >= canvas.height-30 && l.x >= basketX && l.x <= basketX + basketW) {
+          score += 1; l.y = canvas.height + 20;
+          document.getElementById('caught').textContent = score;
+        }
+      });
+      if (Math.random() < 0.05) spawnLeaf();
+      if (score >= 15) { win(); }
+    }
+
+    function loop() {
+      if (!running) return;
+      update(); draw();
+      requestAnimationFrame(loop);
+    }
+
+    function win() {
+      running = false;
+      Eco.awardPoints(Eco.findUser(user.email), 20, 'Eco Catch win');
+      alert('You won! +20 Eco-Points awarded.');
+    }
+
+    document.getElementById('startBtn').onclick = () => { score=0; leaves=[]; running=true; loop(); };
+    window.addEventListener('keydown', (e)=>{
+      const step = 18;
+      if (e.key === 'ArrowLeft') basketX = Math.max(0, basketX - step);
+      if (e.key === 'ArrowRight') basketX = Math.min(canvas.width - basketW, basketX + step);
+    });
+
+    draw();
+  </script>
+</body>
+</html>
